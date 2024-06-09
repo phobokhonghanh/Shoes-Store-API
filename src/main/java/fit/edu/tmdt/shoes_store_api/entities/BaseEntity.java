@@ -1,44 +1,39 @@
 package fit.edu.tmdt.shoes_store_api.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-
-@Entity
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Table(name = "support")
-public class Support {
-
-    @Id
-    @Column(name = "id", length = 36)
-    private String id;
-
+@AllArgsConstructor
+@MappedSuperclass
+public abstract class BaseEntity {
+    @CreatedDate
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @LastModifiedDate
     @Column(name = "updated_at")
     private Instant updatedAt;
-
+    @CreatedBy
     @Column(name = "created_by")
     private Long createdBy;
 
+    @LastModifiedBy
     @Column(name = "updated_by")
     private Long updatedBy;
-
-    @Column(name = "value", length = 255)
-    private String value;
-
-    @Column(name = "infor", length = 35)
-    private String infor;
-
-    @Column(name = "description", length = 255)
-    private String description;
 
     @PrePersist
     protected void onCreate() {
@@ -50,7 +45,4 @@ public class Support {
         updatedAt = Instant.now();
     }
 
-    public Support(String id) {
-        this.id = id;
-    }
 }
