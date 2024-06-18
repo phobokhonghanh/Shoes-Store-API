@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
 
 @Service
 public class ImplUtil {
@@ -21,5 +22,10 @@ public class ImplUtil {
     public String renderOTP() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(999999));
+    }
+    public <T> void updateFieldIfNotNull(T field, Consumer<T> setter) {
+        if (field != null) {
+            setter.accept(field);
+        }
     }
 }

@@ -22,7 +22,6 @@ public class ClientTypesController {
     @GetMapping(value = "/all", produces = "application/json")
     public ResponseEntity<List<TypeResponse>> getAll() {
         return ResponseUtil.getResponse(typeService.getAll(), OK);
-
     }
 
 }

@@ -3,6 +3,8 @@ package fit.edu.tmdt.shoes_store_api.service.impl;
 import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
 import fit.edu.tmdt.shoes_store_api.config.token.JwtTokenUtils;
 import fit.edu.tmdt.shoes_store_api.constant.Message;
+import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandResponse;
+import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Support.Role;
 import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
@@ -10,19 +12,31 @@ import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDTO;
 import fit.edu.tmdt.shoes_store_api.dto.User.UserDTO;
+import fit.edu.tmdt.shoes_store_api.dto.User.UserResponse;
 import fit.edu.tmdt.shoes_store_api.entities.Account;
+import fit.edu.tmdt.shoes_store_api.entities.Brand;
+import fit.edu.tmdt.shoes_store_api.entities.Product;
 import fit.edu.tmdt.shoes_store_api.entities.Support;
+import fit.edu.tmdt.shoes_store_api.repository.Specification.AccountSpecification;
+import fit.edu.tmdt.shoes_store_api.repository.Specification.BrandSpecification;
 import fit.edu.tmdt.shoes_store_api.repository.UserRepo;
 import fit.edu.tmdt.shoes_store_api.service.AccountService;
 import fit.edu.tmdt.shoes_store_api.service.MailService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,7 +52,7 @@ public class AccountImpl implements AccountService {
     private ImplUtil implUtil;
     @Autowired
     private MailService emailService;
-
+    @Autowired
     private final JwtTokenUtils jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -165,6 +179,62 @@ public class AccountImpl implements AccountService {
     }
 
     @Override
+    public Page<UserResponse> getAll(Integer pageNo, Integer pageSize, String search) {
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Specification<Account> spec = Specification.where(AccountSpecification.containsKeywordInMultipleAttribute(search, "username","phone","email","fullname"));
+
+        Page<Account> accountEntity = userRepo.findAll(spec, pageable);
+        List<UserResponse> userDTO = convertBase.toListConvert(accountEntity.getContent(), UserResponse.class);
+        return new PageImpl<>(userDTO, pageable, accountEntity.getTotalElements());
+    }
+
+    @Override
+    public UserResponse updateAccount(UserDTO userDTO) {
+        Account account = getAccountId(userDTO.getId());
+        if (account == null) return null;
+        implUtil.updateFieldIfNotNull(userDTO.getFullname(), account::setFullname);
+        implUtil.updateFieldIfNotNull(userDTO.getPhone(), account::setPhone);
+        implUtil.updateFieldIfNotNull(userDTO.getGender(), account::setGender);
+        implUtil.updateFieldIfNotNull(userDTO.getAvatar(), account::setAvatar);
+        Account accountSave = userRepo.save(account);
+        return convertBase.convert(accountSave, UserResponse.class);
+    }
+
+    @Override
+    public UserResponse updateRole(Long id, boolean upRole) {
+        Account account = getAccountId(id);
+        if (account == null) {
+            return null;
+        }
+        Support support = new Support(Role.ADMIN);
+        if (upRole) {
+            support.setId(Role.CLIENT);
+        }
+        account.setRole(support);
+        Account accountSave = userRepo.save(account);
+        return convertBase.convert(accountSave, UserResponse.class);
+    }
+
+    @Override
+    public UserResponse updateStatus(Long id, boolean lock) {
+        Account account = getAccountId(id);
+        if (account == null) {
+            return null;
+        }
+        Support support = new Support(Status.UNLOCK);
+        if (lock) {
+            support.setId(Status.LOCK);
+        }
+        account.setStatus(support);
+        Account accountSave = userRepo.save(account);
+        return convertBase.convert(accountSave, UserResponse.class);
+    }
+
+    public Account getAccountId(Long id) {
+        return userRepo.findById(id).orElse(null);
+    }
+
+    @Override
     public LoginResponse login(LoginDTO loginDTO) {
         try {
             Account account = findByUsername(loginDTO.getUsername());
@@ -215,6 +285,15 @@ public class AccountImpl implements AccountService {
     @Override
     public Account findByUsername(String username) {
         return userRepo.findByUsername(username);
+    }
+
+    @Override
+    public UserResponse findById(Long id) {
+        Account account = getAccountId(id);
+        if (account == null) {
+            return null;
+        }
+        return convertBase.convert(account, UserResponse.class);
     }
 
     @Override
