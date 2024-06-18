@@ -1,5 +1,6 @@
 package fit.edu.tmdt.shoes_store_api.dto.User;
 
+import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,6 @@ public class UserDTO {
     private String gender;
     private String token;
     private String avatar;
-    private String status;
-    private String role;
+    private SupportDTO status;
+    private SupportDTO role;
 }
