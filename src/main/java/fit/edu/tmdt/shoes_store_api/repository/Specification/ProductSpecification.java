@@ -4,7 +4,7 @@ import fit.edu.tmdt.shoes_store_api.entities.Product;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 
-public class GenericSpecification {
+public class ProductSpecification {
     public static Specification<Product> containsTextInField(String keyword, String attribute) {
         return (root, query, builder) -> builder.like(root.get(attribute), "%" + keyword + "%");
     }

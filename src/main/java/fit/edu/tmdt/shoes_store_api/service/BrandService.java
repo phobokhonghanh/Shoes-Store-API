@@ -8,8 +8,8 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface BrandService {
-    Page<BrandResponse> getAll(Integer pageNo);
-    List<BrandResponse> getAll();
+    Page<BrandResponse> getAll(Integer pageNo,Integer pageSize,String search);
+    List<BrandResponse> getAllByActive();
 
     BrandResponse getBrand(Long id);
     Brand findById(Long id);
