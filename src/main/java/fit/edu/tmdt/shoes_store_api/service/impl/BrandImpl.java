@@ -5,15 +5,20 @@ import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
 import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandResponse;
+import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.entities.Brand;
-import fit.edu.tmdt.shoes_store_api.entities.Support;
 import fit.edu.tmdt.shoes_store_api.repository.BrandRepo;
+import fit.edu.tmdt.shoes_store_api.repository.Specification.BrandSpecification;
 import fit.edu.tmdt.shoes_store_api.service.BrandService;
 import fit.edu.tmdt.shoes_store_api.service.SupportService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,13 +37,18 @@ public class BrandImpl implements BrandService {
     ConvertBase convertBase;
 
     @Override
-    public Page<BrandResponse> getAll(Integer pageNo) {
-        return null;
+    public Page<BrandResponse> getAll(Integer pageNo, Integer pageSize, String search) {
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        Specification<Brand> spec = Specification.where(BrandSpecification.containsTextInField(search, "name"));
+
+        Page<Brand> brandEntity = brandRepo.findAll(spec, pageable);
+        List<BrandResponse> brandDTO = convertBase.toListConvert(brandEntity.getContent(), BrandResponse.class);
+        return new PageImpl<>(brandDTO, pageable, brandEntity.getTotalElements());
     }
 
     @Override
-    public List<BrandResponse> getAll() {
-        return convertBase.toListConvert(brandRepo.findAll(), BrandResponse.class);
+    public List<BrandResponse> getAllByActive() {
+        return convertBase.toListConvert(brandRepo.findAllByStatusId(Status.UNLOCK), BrandResponse.class);
     }
 
     @Override
@@ -46,11 +56,13 @@ public class BrandImpl implements BrandService {
         Optional<Brand> optional = brandRepo.findById(id);
         return implUtil.getOptional(optional, BrandResponse.class);
     }
+
     @Override
     public Brand findById(Long id) {
-        Brand brand = brandRepo.findById(id).orElseThrow(()->new EntityNotFoundException("Brand not found"));
+        Brand brand = brandRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Brand not found"));
         return brand;
     }
+
     @Override
     public BrandResponse createBrand(BrandDTO brandsDTO) {
         Brand brand = brandRepo.save(convertBase.convert(brandsDTO, Brand.class));

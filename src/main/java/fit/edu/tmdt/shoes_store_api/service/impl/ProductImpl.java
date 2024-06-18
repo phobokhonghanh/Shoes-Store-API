@@ -1,18 +1,17 @@
 package fit.edu.tmdt.shoes_store_api.service.impl;
 
 import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
-import fit.edu.tmdt.shoes_store_api.dto.Support.Sex;
-import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
+import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.entities.Image;
 import fit.edu.tmdt.shoes_store_api.entities.Product;
 import fit.edu.tmdt.shoes_store_api.entities.Size;
 import fit.edu.tmdt.shoes_store_api.repository.ImageRepo;
 import fit.edu.tmdt.shoes_store_api.repository.ProductRepo;
 import fit.edu.tmdt.shoes_store_api.repository.SizeRepo;
-import fit.edu.tmdt.shoes_store_api.repository.Specification.GenericSpecification;
+import fit.edu.tmdt.shoes_store_api.repository.Specification.ProductSpecification;
 import fit.edu.tmdt.shoes_store_api.service.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,14 +50,14 @@ public class ProductImpl implements ProductService {
     public Page<ProductResponse> getAll(Integer pageNo, Integer pageSize, String search, boolean sort, String filter, Integer brand, Integer type, String sex, boolean active) {
         Sort sorting = sort ? Sort.by(Sort.Direction.ASC, filter) : Sort.by(Sort.Direction.DESC, filter);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sorting);
-        Specification<Product> spec = Specification.where(GenericSpecification.containsTextInField(search, "name"))
-                .and(GenericSpecification.joinAttribute(brand, "brand"))
-                .and(GenericSpecification.joinAttribute(type, "type"));
+        Specification<Product> spec = Specification.where(ProductSpecification.containsTextInField(search, "name"))
+                .and(ProductSpecification.joinAttribute(brand, "brand"))
+                .and(ProductSpecification.joinAttribute(type, "type"));
         if (sex != "") {
-            spec = spec.and(GenericSpecification.joinAttribute(sex, "sex"));
+            spec = spec.and(ProductSpecification.joinAttribute(sex, "sex"));
         }
         if (active) {
-            spec = spec.and(GenericSpecification.joinAttribute(Status.UNLOCK, "status"));
+            spec = spec.and(ProductSpecification.joinAttribute(Status.UNLOCK, "status"));
         }
         Page<Product> productsEntity = productRepo.findAll(spec, pageable);
         List<ProductResponse> productsDTO = convertBase.toListConvert(productsEntity.getContent(), ProductResponse.class);

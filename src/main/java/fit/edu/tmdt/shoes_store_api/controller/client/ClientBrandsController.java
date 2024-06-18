@@ -22,13 +22,11 @@ public class ClientBrandsController {
 
     @GetMapping(value = "/{brandId}", produces = "application/json")
     public ResponseEntity<BrandResponse> getBrandByID(@PathVariable Long brandId) {
-        BrandResponse brandsDTO = brandService.getBrand(brandId);
-        return ResponseUtil.getResponse(brandsDTO, OK);
+        return ResponseUtil.getResponse(brandService.getBrand(brandId), OK);
     }
 
     @GetMapping(value = "/all", produces = "application/json")
     public ResponseEntity<List<BrandResponse>> getAll() {
-        List<BrandResponse> list = brandService.getAll();
-        return ResponseUtil.getResponse(list, OK);
+        return ResponseUtil.getResponse(brandService.getAllByActive(), OK);
     }
 }
