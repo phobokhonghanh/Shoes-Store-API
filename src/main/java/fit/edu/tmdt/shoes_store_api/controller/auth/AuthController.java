@@ -57,5 +57,5 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginDTO loginDTO) {
         return ResponseUtil.getResponse(accountService.login(loginDTO), OK);
     }
-    
+
 }
