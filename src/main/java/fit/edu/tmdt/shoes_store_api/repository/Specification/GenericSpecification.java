@@ -23,6 +23,20 @@ public class GenericSpecification {
         };
     }
 
+    public static Specification<Product> findFilterInMultipleAttribute(String filter, String... attributes) {
+        return (root, query, builder) -> {
+            Specification<Product> spec = null;
+            for (String field : attributes) {
+                if (spec == null) {
+                    spec = findByAttribute(field, filter);
+                } else {
+                    spec = spec.or(findByAttribute(field, filter));
+                }
+            }
+            return spec.toPredicate(root, query, builder);
+        };
+    }
+
     public static Specification<Product> findByAttribute(String filter, String attribute) {
         return (root, query, builder) -> builder.equal(root.get(attribute), filter);
     }
@@ -36,5 +50,4 @@ public class GenericSpecification {
             return null;
         };
     }
-
 }

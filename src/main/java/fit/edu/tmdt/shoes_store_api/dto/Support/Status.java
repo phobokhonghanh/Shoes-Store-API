@@ -1,4 +1,4 @@
-package fit.edu.tmdt.shoes_store_api.constant;
+package fit.edu.tmdt.shoes_store_api.dto.Support;
 
 public interface Status {
     String UNLOCK = "S1";

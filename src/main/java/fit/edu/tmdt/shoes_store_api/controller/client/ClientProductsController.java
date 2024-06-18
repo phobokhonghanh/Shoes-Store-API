@@ -3,6 +3,8 @@ package fit.edu.tmdt.shoes_store_api.controller.client;
 import fit.edu.tmdt.shoes_store_api.Utils.ResponseUtil;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
 import fit.edu.tmdt.shoes_store_api.service.ProductService;
+import jakarta.annotation.Nullable;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +26,15 @@ public class ClientProductsController {
 
     @GetMapping(value = "/all", produces = "application/json")
     public ResponseEntity<Page<ProductResponse>> getAll(@RequestParam(name = "page", defaultValue = "1") Integer pageNo,
-                                                          @RequestParam(name = "size", required = false, defaultValue = "10") Integer pageSize,
-                                                          @RequestParam(name = "search", required = false, defaultValue = "") String search,
-                                                          @RequestParam(name = "sort", required = false, defaultValue = "true") boolean sort,
-                                                          @RequestParam(name = "filter", required = false, defaultValue = "name") String filter,
-                                                          @RequestParam(name = "brand", required = false) Integer brand,
-                                                          @RequestParam(name = "active", required = false, defaultValue = "true") boolean active) {
-        Page<ProductResponse> list = productService.getAll(pageNo, pageSize, search, sort, filter,brand, active);
+                                                        @RequestParam(name = "size", required = false, defaultValue = "10") Integer pageSize,
+                                                        @RequestParam(name = "search", required = false, defaultValue = "") String search,
+                                                        @RequestParam(name = "sort", required = false, defaultValue = "true") boolean sort,
+                                                        @RequestParam(name = "filter", required = false, defaultValue = "name") String filter,
+                                                        @RequestParam(name = "brand", required = false) Integer brand,
+                                                        @RequestParam(name = "type", required = false) Integer type,
+                                                        @RequestParam(name = "sex", required = false) String sex,
+                                                        @RequestParam(name = "active", required = false, defaultValue = "true") boolean active) {
+        Page<ProductResponse> list = productService.getAll(pageNo, pageSize, search, sort, filter, brand, type, sex, active);
         return ResponseUtil.getResponse(list, OK);
     }
 }

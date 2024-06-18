@@ -1,11 +1,11 @@
 package fit.edu.tmdt.shoes_store_api.service.impl;
 
 import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
+import fit.edu.tmdt.shoes_store_api.dto.Support.Sex;
+import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
-import fit.edu.tmdt.shoes_store_api.dto.Size.SizeDTO;
-import fit.edu.tmdt.shoes_store_api.entities.Brand;
 import fit.edu.tmdt.shoes_store_api.entities.Image;
 import fit.edu.tmdt.shoes_store_api.entities.Product;
 import fit.edu.tmdt.shoes_store_api.entities.Size;
@@ -13,7 +13,6 @@ import fit.edu.tmdt.shoes_store_api.repository.ImageRepo;
 import fit.edu.tmdt.shoes_store_api.repository.ProductRepo;
 import fit.edu.tmdt.shoes_store_api.repository.SizeRepo;
 import fit.edu.tmdt.shoes_store_api.repository.Specification.GenericSpecification;
-import fit.edu.tmdt.shoes_store_api.repository.TypeRepo;
 import fit.edu.tmdt.shoes_store_api.service.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +48,17 @@ public class ProductImpl implements ProductService {
     private BrandService brandService;
 
     @Override
-    public Page<ProductResponse> getAll(Integer pageNo, Integer pageSize, String search, boolean sort, String filter, Integer brand, boolean active) {
+    public Page<ProductResponse> getAll(Integer pageNo, Integer pageSize, String search, boolean sort, String filter, Integer brand, Integer type, String sex, boolean active) {
         Sort sorting = sort ? Sort.by(Sort.Direction.ASC, filter) : Sort.by(Sort.Direction.DESC, filter);
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize, sorting);
-        Specification<Product> spec;
+        Specification<Product> spec = Specification.where(GenericSpecification.containsTextInField(search, "name"))
+                .and(GenericSpecification.joinAttribute(brand, "brand"))
+                .and(GenericSpecification.joinAttribute(type, "type"));
+        if (sex != "") {
+            spec = spec.and(GenericSpecification.joinAttribute(sex, "sex"));
+        }
         if (active) {
-            spec = Specification.where(GenericSpecification.containsTextInField(search, "name")).and(GenericSpecification.joinAttribute("S1", "status")).and(GenericSpecification.joinAttribute(brand, "brand"));
-        } else {
-            spec = Specification.where(GenericSpecification.containsTextInField(search, "name")).and(GenericSpecification.joinAttribute(brand, "brand"));
+            spec = spec.and(GenericSpecification.joinAttribute(Status.UNLOCK, "status"));
         }
         Page<Product> productsEntity = productRepo.findAll(spec, pageable);
         List<ProductResponse> productsDTO = convertBase.toListConvert(productsEntity.getContent(), ProductResponse.class);
@@ -111,16 +113,13 @@ public class ProductImpl implements ProductService {
         if (productConvert.getSizes() != null && productConvert.getSizes().size() > 0) {
             for (Size s : productConvert.getSizes()) {
                 if (s.getId() != null) {
-                    currentSizes.stream()
-                            .filter(size -> size.getId().equals(s.getId()))
-                            .findFirst()
-                            .ifPresent(existingSize -> {
-                                updateFieldIfNotNull(s.getName(), existingSize::setName);
-                                updateFieldIfNotNull(s.getQuantity(), existingSize::setQuantity);
-                                updateFieldIfNotNull(s.getPrice(), existingSize::setPrice);
-                                updateFieldIfNotNull(s.getSalePercent(), existingSize::setSalePercent);
-                                updateFieldIfNotNull(s.getDescription(), existingSize::setDescription);
-                            });
+                    currentSizes.stream().filter(size -> size.getId().equals(s.getId())).findFirst().ifPresent(existingSize -> {
+                        updateFieldIfNotNull(s.getName(), existingSize::setName);
+                        updateFieldIfNotNull(s.getQuantity(), existingSize::setQuantity);
+                        updateFieldIfNotNull(s.getPrice(), existingSize::setPrice);
+                        updateFieldIfNotNull(s.getSalePercent(), existingSize::setSalePercent);
+                        updateFieldIfNotNull(s.getDescription(), existingSize::setDescription);
+                    });
                 } else {
                     s.setProduct(product);
                     sizeRepo.save(s);
@@ -130,13 +129,10 @@ public class ProductImpl implements ProductService {
         if (productConvert.getImages() != null && productConvert.getImages().size() > 0) {
             for (Image i : productConvert.getImages()) {
                 if (i.getId() != null) {
-                    currentImages.stream()
-                            .filter(image -> image.getId().equals(i.getId()))
-                            .findFirst()
-                            .ifPresent(existingSize -> {
-                                updateFieldIfNotNull(i.getPath(), existingSize::setPath);
-                                updateFieldIfNotNull(i.isThumbnail(), existingSize::setThumbnail);
-                            });
+                    currentImages.stream().filter(image -> image.getId().equals(i.getId())).findFirst().ifPresent(existingSize -> {
+                        updateFieldIfNotNull(i.getPath(), existingSize::setPath);
+                        updateFieldIfNotNull(i.isThumbnail(), existingSize::setThumbnail);
+                    });
                 } else {
                     i.setProduct(product);
                     imageRepo.save(i);
