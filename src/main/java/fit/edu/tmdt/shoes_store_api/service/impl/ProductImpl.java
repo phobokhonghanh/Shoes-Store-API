@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 @Service
 public class ProductImpl implements ProductService {
@@ -89,10 +88,10 @@ public class ProductImpl implements ProductService {
         Product product = productRepo.findById(productDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Product not found"));
         Product productConvert = convertBase.convert(productDTO, Product.class);
 
-        updateFieldIfNotNull(productConvert.getName(), product::setName);
-        updateFieldIfNotNull(productConvert.getCode(), product::setCode);
-        updateFieldIfNotNull(productConvert.getShortDescription(), product::setShortDescription);
-        updateFieldIfNotNull(productConvert.getDescription(), product::setDescription);
+        implUtil.updateFieldIfNotNull(productConvert.getName(), product::setName);
+        implUtil.updateFieldIfNotNull(productConvert.getCode(), product::setCode);
+        implUtil.updateFieldIfNotNull(productConvert.getShortDescription(), product::setShortDescription);
+        implUtil.updateFieldIfNotNull(productConvert.getDescription(), product::setDescription);
 
         if (productDTO.getStatus() != null) {
             product.setStatus(supportService.getSupport(productDTO.getStatus().getId()));
@@ -113,11 +112,11 @@ public class ProductImpl implements ProductService {
             for (Size s : productConvert.getSizes()) {
                 if (s.getId() != null) {
                     currentSizes.stream().filter(size -> size.getId().equals(s.getId())).findFirst().ifPresent(existingSize -> {
-                        updateFieldIfNotNull(s.getName(), existingSize::setName);
-                        updateFieldIfNotNull(s.getQuantity(), existingSize::setQuantity);
-                        updateFieldIfNotNull(s.getPrice(), existingSize::setPrice);
-                        updateFieldIfNotNull(s.getSalePercent(), existingSize::setSalePercent);
-                        updateFieldIfNotNull(s.getDescription(), existingSize::setDescription);
+                        implUtil.updateFieldIfNotNull(s.getName(), existingSize::setName);
+                        implUtil.updateFieldIfNotNull(s.getQuantity(), existingSize::setQuantity);
+                        implUtil.updateFieldIfNotNull(s.getPrice(), existingSize::setPrice);
+                        implUtil.updateFieldIfNotNull(s.getSalePercent(), existingSize::setSalePercent);
+                        implUtil.updateFieldIfNotNull(s.getDescription(), existingSize::setDescription);
                     });
                 } else {
                     s.setProduct(product);
@@ -129,8 +128,8 @@ public class ProductImpl implements ProductService {
             for (Image i : productConvert.getImages()) {
                 if (i.getId() != null) {
                     currentImages.stream().filter(image -> image.getId().equals(i.getId())).findFirst().ifPresent(existingSize -> {
-                        updateFieldIfNotNull(i.getPath(), existingSize::setPath);
-                        updateFieldIfNotNull(i.isThumbnail(), existingSize::setThumbnail);
+                        implUtil.updateFieldIfNotNull(i.getPath(), existingSize::setPath);
+                        implUtil.updateFieldIfNotNull(i.isThumbnail(), existingSize::setThumbnail);
                     });
                 } else {
                     i.setProduct(product);
@@ -142,11 +141,7 @@ public class ProductImpl implements ProductService {
         return convertBase.convert(productSave, ProductResponse.class);
     }
 
-    private <T> void updateFieldIfNotNull(T field, Consumer<T> setter) {
-        if (field != null) {
-            setter.accept(field);
-        }
-    }
+
 
     @Override
     public void delete(Long id) {

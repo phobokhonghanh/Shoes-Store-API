@@ -9,20 +9,6 @@ public class ProductSpecification {
         return (root, query, builder) -> builder.like(root.get(attribute), "%" + keyword + "%");
     }
 
-    public static Specification<Product> containsKeywordInMultipleAttribute(String keyword, String... attributes) {
-        return (root, query, builder) -> {
-            Specification<Product> spec = null;
-            for (String field : attributes) {
-                if (spec == null) {
-                    spec = containsTextInField(field, keyword);
-                } else {
-                    spec = spec.or(containsTextInField(field, keyword));
-                }
-            }
-            return spec.toPredicate(root, query, builder);
-        };
-    }
-
     public static Specification<Product> findFilterInMultipleAttribute(String filter, String... attributes) {
         return (root, query, builder) -> {
             Specification<Product> spec = null;
