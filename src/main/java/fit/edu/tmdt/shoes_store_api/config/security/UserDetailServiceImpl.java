@@ -1,6 +1,6 @@
 package fit.edu.tmdt.shoes_store_api.config.security;
 
-import fit.edu.tmdt.shoes_store_api.constant.Status;
+import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.entities.Account;
 import fit.edu.tmdt.shoes_store_api.repository.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
