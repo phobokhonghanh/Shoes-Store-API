@@ -83,7 +83,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User user;
+    private Account account;
 
     @Column(name = "payment_method_order_id", length = 255)
     private String paymentMethodOrderId;

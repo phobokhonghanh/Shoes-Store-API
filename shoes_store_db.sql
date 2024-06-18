@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS
 	`order`,
 		size,
 	payment_method,
-	user,
+	account,
 	image,
 	product,
 	type,
@@ -106,7 +106,7 @@ CREATE TABLE image
 );
 
 
-CREATE TABLE user
+CREATE TABLE account
 (
     id                   BIGINT AUTO_INCREMENT NOT NULL,
     created_at           datetime              NULL,
@@ -171,6 +171,6 @@ CREATE TABLE `order`
 		support_status    	 				 VARCHAR(36)	         NOT NULL,
     CONSTRAINT pk_order PRIMARY KEY (id),
 		CONSTRAINT fk_support_status_on_order FOREIGN KEY (support_status) REFERENCES support (id),
-		CONSTRAINT fk_user_on_order FOREIGN KEY (user_id) REFERENCES user (id),
+		CONSTRAINT fk_user_on_order FOREIGN KEY (user_id) REFERENCES account (id),
 		CONSTRAINT fk_size_on_order FOREIGN KEY (size_id) REFERENCES size (id)
 );
