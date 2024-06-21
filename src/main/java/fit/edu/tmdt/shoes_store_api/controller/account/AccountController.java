@@ -1,11 +1,7 @@
 package fit.edu.tmdt.shoes_store_api.controller.account;
 
 import fit.edu.tmdt.shoes_store_api.Utils.ResponseUtil;
-import fit.edu.tmdt.shoes_store_api.constant.Message;
-import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginDTO;
-import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginResponse;
-import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandResponse;
-import fit.edu.tmdt.shoes_store_api.dto.User.UserDTO;
+import fit.edu.tmdt.shoes_store_api.dto.User.AccountDTO;
 import fit.edu.tmdt.shoes_store_api.dto.User.UserResponse;
 import fit.edu.tmdt.shoes_store_api.service.AccountService;
 import lombok.extern.log4j.Log4j2;
@@ -13,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.Serializable;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -32,8 +26,8 @@ public class AccountController {
     }
 
     @PatchMapping("/account/{id}")
-    public ResponseEntity<UserResponse> updateAccount(@RequestBody UserDTO userDTO) {
-        return ResponseUtil.getResponse(accountService.updateAccount(userDTO), OK);
+    public ResponseEntity<UserResponse> updateAccount(@RequestBody AccountDTO accountDTO) {
+        return ResponseUtil.getResponse(accountService.updateAccount(accountDTO), OK);
     }
 
     @GetMapping("/admin/account/all")

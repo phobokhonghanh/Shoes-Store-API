@@ -12,24 +12,12 @@ import java.time.Instant;
 @Accessors(chain = true)
 @Entity
 @Table(name = "payment_method")
-public class PaymentMethod {
+public class PaymentMethod  extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;

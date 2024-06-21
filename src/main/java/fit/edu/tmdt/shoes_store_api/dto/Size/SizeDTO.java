@@ -11,11 +11,14 @@ import lombok.NonNull;
 @AllArgsConstructor
 public class SizeDTO {
     private Long id;
-    @Nullable
     private Long product;
     private String name;
-    private String quantity;
+    private Long quantity;
     private String price;
     private String salePercent;
     private String description;
+
+    public SizeDTO(Long id) {
+        this.id = id;
+    }
 }
