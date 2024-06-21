@@ -24,8 +24,8 @@ public class Size extends BaseEntity{
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 
-    @Column(name = "quantity", nullable = false, length = 255)
-    private String quantity;
+    @Column(name = "quantity", nullable = false)
+    private Long quantity;
 
     @Column(name = "price", nullable = false, length = 255)
     private String price;

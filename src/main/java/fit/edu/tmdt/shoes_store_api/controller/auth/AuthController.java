@@ -4,7 +4,7 @@ import fit.edu.tmdt.shoes_store_api.Utils.ResponseUtil;
 import fit.edu.tmdt.shoes_store_api.constant.Message;
 import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginResponse;
-import fit.edu.tmdt.shoes_store_api.dto.User.UserDTO;
+import fit.edu.tmdt.shoes_store_api.dto.User.AccountDTO;
 import fit.edu.tmdt.shoes_store_api.service.AccountService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class AuthController {
     AccountService accountService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity create(@RequestBody UserDTO userDTO) {
-        String response = accountService.register(userDTO);
+    public ResponseEntity create(@RequestBody AccountDTO accountDTO) {
+        String response = accountService.register(accountDTO);
         return ResponseUtil.getResponseWithMessage(response, Message.ACCOUNT_EXIST, OK);
     }
 
@@ -47,9 +47,9 @@ public class AuthController {
     }
 
     @PostMapping("/admin/auth/register")
-    public ResponseEntity createAdmin(@RequestBody UserDTO userDTO) {
+    public ResponseEntity createAdmin(@RequestBody AccountDTO accountDTO) {
         log.info("Register admin");
-        return create(userDTO);
+        return create(accountDTO);
     }
 
 

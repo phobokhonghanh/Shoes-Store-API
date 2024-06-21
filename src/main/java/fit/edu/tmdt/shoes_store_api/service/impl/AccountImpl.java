@@ -3,26 +3,20 @@ package fit.edu.tmdt.shoes_store_api.service.impl;
 import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
 import fit.edu.tmdt.shoes_store_api.config.token.JwtTokenUtils;
 import fit.edu.tmdt.shoes_store_api.constant.Message;
-import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandResponse;
-import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Support.Role;
 import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
 import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Authen.LoginResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDTO;
-import fit.edu.tmdt.shoes_store_api.dto.User.UserDTO;
+import fit.edu.tmdt.shoes_store_api.dto.User.AccountDTO;
 import fit.edu.tmdt.shoes_store_api.dto.User.UserResponse;
 import fit.edu.tmdt.shoes_store_api.entities.Account;
-import fit.edu.tmdt.shoes_store_api.entities.Brand;
-import fit.edu.tmdt.shoes_store_api.entities.Product;
 import fit.edu.tmdt.shoes_store_api.entities.Support;
 import fit.edu.tmdt.shoes_store_api.repository.Specification.AccountSpecification;
-import fit.edu.tmdt.shoes_store_api.repository.Specification.BrandSpecification;
 import fit.edu.tmdt.shoes_store_api.repository.UserRepo;
 import fit.edu.tmdt.shoes_store_api.service.AccountService;
 import fit.edu.tmdt.shoes_store_api.service.MailService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +61,9 @@ public class AccountImpl implements AccountService {
     }
 
     @Override
-    public String register(UserDTO userDTO) {
-        String email = userDTO.getEmail();
-        String username = userDTO.getUsername();
+    public String register(AccountDTO accountDTO) {
+        String email = accountDTO.getEmail();
+        String username = accountDTO.getUsername();
         // xóa tài khoản đã tồn tại (trùng email nhưng chưa verify)
         deleteAccount(email, Status.VERIFY);
 
@@ -77,20 +71,20 @@ public class AccountImpl implements AccountService {
         if (!existsEmail(email) && !existsUsername(username)) {
             // set trạng thái tài khoản
             SupportDTO status = new SupportDTO(Status.VERIFY);
-            userDTO.setStatus(status);
+            accountDTO.setStatus(status);
             // tạo otp và set vào account
-            userDTO.setToken(implUtil.renderOTP());
+            accountDTO.setToken(implUtil.renderOTP());
             // set trạng thái sang verify
             // mã hóa password
-            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            accountDTO.setPassword(passwordEncoder.encode(accountDTO.getPassword()));
             // set role là client
             SupportDTO role = new SupportDTO(Role.CLIENT);
-            if (userDTO.getRole() != null) {
+            if (accountDTO.getRole() != null) {
                 role.setId(Role.ADMIN);
             }
-            userDTO.setRole(role);
+            accountDTO.setRole(role);
             // tạo tài khoản
-            Account account = convertBase.convert(userDTO, Account.class);
+            Account account = convertBase.convert(accountDTO, Account.class);
             Account accountSave = userRepo.save(account);
             // send email
             Map<String, Object> attributes = Map.of(
@@ -189,13 +183,13 @@ public class AccountImpl implements AccountService {
     }
 
     @Override
-    public UserResponse updateAccount(UserDTO userDTO) {
-        Account account = getAccountId(userDTO.getId());
+    public UserResponse updateAccount(AccountDTO accountDTO) {
+        Account account = getAccountId(accountDTO.getId());
         if (account == null) return null;
-        implUtil.updateFieldIfNotNull(userDTO.getFullname(), account::setFullname);
-        implUtil.updateFieldIfNotNull(userDTO.getPhone(), account::setPhone);
-        implUtil.updateFieldIfNotNull(userDTO.getGender(), account::setGender);
-        implUtil.updateFieldIfNotNull(userDTO.getAvatar(), account::setAvatar);
+        implUtil.updateFieldIfNotNull(accountDTO.getFullname(), account::setFullname);
+        implUtil.updateFieldIfNotNull(accountDTO.getPhone(), account::setPhone);
+        implUtil.updateFieldIfNotNull(accountDTO.getGender(), account::setGender);
+        implUtil.updateFieldIfNotNull(accountDTO.getAvatar(), account::setAvatar);
         Account accountSave = userRepo.save(account);
         return convertBase.convert(accountSave, UserResponse.class);
     }

@@ -1,36 +1,29 @@
 package fit.edu.tmdt.shoes_store_api.entities;
+
 import fit.edu.tmdt.shoes_store_api.constant.PaymentMethodType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
+@ToString
 @Accessors(chain = true)
 @Entity
 @Table(name = "`order`") // `order` là từ khóa trong SQL, nên cần wrap trong dấu `` để tránh xung đột
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "updated_by")
-    private Long updatedBy;
 
     @Column(name = "code", nullable = false, unique = true, length = 255)
     private String code;
@@ -55,15 +48,6 @@ public class Order {
 
     @Column(name = "note", length = 255)
     private String note;
-
-    @Column(name = "size_id", nullable = false)
-    private Long sizeId;
-
-    @Column(name = "quantity", nullable = false)
-    private Long quantity;
-
-    @Column(name = "price", nullable = false, length = 255)
-    private String price;
 
     @Column(name = "total_amount", nullable = false, precision = 15, scale = 5)
     private BigDecimal totalAmount;
@@ -91,4 +75,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "support_status", referencedColumnName = "id", nullable = false)
     private Support status;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails = new ArrayList<>();
 }

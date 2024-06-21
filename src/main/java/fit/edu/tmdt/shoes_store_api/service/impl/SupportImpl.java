@@ -5,6 +5,8 @@ import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
 import fit.edu.tmdt.shoes_store_api.dto.Size.SizeDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Size.SizeResponse;
+import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDTO;
+import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDataType;
 import fit.edu.tmdt.shoes_store_api.entities.Support;
 import fit.edu.tmdt.shoes_store_api.repository.SizeRepo;
 import fit.edu.tmdt.shoes_store_api.repository.SupportRepo;
@@ -14,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -29,5 +33,10 @@ public class SupportImpl implements SupportService {
     public Support getSupport(String id) {
         Support support = supportRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Support status not found"));
         return support;
+    }
+
+    @Override
+    public List<SupportDTO> getSupportData(SupportDataType type) {
+        return convertBase.toListConvert(supportRepo.findAllByInfor(type.name()), SupportDTO.class);
     }
 }

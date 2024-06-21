@@ -12,5 +12,5 @@ public class PaymentMethodResponse {
     private Long id;
     private String name;
     private String code;
-    private SupportDTO supportStatus;
+    private SupportDTO status;
 }
