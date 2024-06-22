@@ -15,13 +15,13 @@ public class Image extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "path", nullable = false, length = 255)
+    @Column(name = "path", length = 255)
     private String path;
 
-    @Column(name = "is_thumbnail", nullable = false)
+    @Column(name = "is_thumbnail")
     private boolean isThumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)

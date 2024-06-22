@@ -1,6 +1,7 @@
 package fit.edu.tmdt.shoes_store_api.constant;
 
 public interface Message {
+   String CODE_EXIST = "Mã đã tồn tại";
    String ACCOUNT_EXIST = "Tài khoản đã tồn tại";
    String ACCOUNT_NOT_EXIST = "Tài khoản không tồn tại";
    String ACCOUNT_NOT_VERIFY = "Tài khoản chưa xác thực";

@@ -65,13 +65,17 @@ public class BrandImpl implements BrandService {
 
     @Override
     public BrandResponse createBrand(BrandDTO brandsDTO) {
+        if ((brandRepo.existsByCode(brandsDTO.getCode()))) return null;
         Brand brand = brandRepo.save(convertBase.convert(brandsDTO, Brand.class));
         return convertBase.convert(brand, BrandResponse.class);
     }
 
     @Override
     public BrandResponse updateBrand(BrandDTO brandsDTO) {
-        Brand brand = brandRepo.findById(brandsDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Brand not found"));
+        Brand brand = brandRepo.findByCode(brandsDTO.getCode());
+        if (brand == null || !brand.getId().equals(brandsDTO.getId())) {
+            return null;
+        }
 
         if (brandsDTO.getName() != null) {
             brand.setName(brandsDTO.getName());
