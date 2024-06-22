@@ -2,30 +2,39 @@ package fit.edu.tmdt.shoes_store_api.controller.product;
 
 
 import fit.edu.tmdt.shoes_store_api.Utils.ResponseUtil;
+import fit.edu.tmdt.shoes_store_api.constant.Message;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
+import fit.edu.tmdt.shoes_store_api.dto.Type.TypeDTO;
+import fit.edu.tmdt.shoes_store_api.entities.Type;
 import fit.edu.tmdt.shoes_store_api.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
-@RequestMapping("${api.prefix}")
+@RequestMapping("${api.prefix}/admin/product")
 public class ProductsController {
     @Autowired
     ProductService productService;
 
-    @PostMapping("/admin/product")
-    public ResponseEntity<ProductResponse> create(@RequestBody ProductDTO productDTO) {
-        ProductResponse saveProductDTO = productService.create(productDTO);
-        return ResponseUtil.getResponse(saveProductDTO, CREATED);
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity create(@RequestPart ProductDTO productDTO, @RequestParam MultipartFile[] files) {
+        ProductResponse saveProductDTO = productService.create(productDTO, files);
+        return ResponseUtil.getResponseWithMessage(saveProductDTO, Message.CODE_EXIST, CREATED);
     }
 
-    @PatchMapping("/admin/product")
-    public ResponseEntity<ProductResponse> update(@RequestBody ProductDTO productDTO) {
-        ProductResponse saveProductDTO = productService.update(productDTO);
-        return ResponseUtil.getResponse(saveProductDTO, CREATED);
+    @PatchMapping
+    public ResponseEntity update(@RequestBody ProductDTO productDTO, @RequestParam MultipartFile[] file) {
+        ProductResponse saveProductDTO = productService.update(productDTO, file);
+        return ResponseUtil.getResponseWithMessage(saveProductDTO, Message.CODE_EXIST, CREATED);
     }
+
+
 }

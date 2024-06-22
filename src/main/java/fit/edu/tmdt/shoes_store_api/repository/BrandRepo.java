@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface BrandRepo extends JpaRepository<Brand, Long>, JpaSpecificationExecutor<Brand> {
+    boolean existsByCode(String code);
+    Brand findByCode(String code);
 
     List<Brand> findAllByStatusId(String status);
 }

@@ -2,9 +2,11 @@ package fit.edu.tmdt.shoes_store_api.service.impl;
 
 import fit.edu.tmdt.shoes_store_api.Utils.ImplUtil;
 import fit.edu.tmdt.shoes_store_api.convert.ConvertBase;
+import fit.edu.tmdt.shoes_store_api.dto.Image.ImageDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Support.Status;
+import fit.edu.tmdt.shoes_store_api.entities.Brand;
 import fit.edu.tmdt.shoes_store_api.entities.Image;
 import fit.edu.tmdt.shoes_store_api.entities.Product;
 import fit.edu.tmdt.shoes_store_api.entities.Size;
@@ -18,9 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductImpl implements ProductService {
@@ -70,22 +76,28 @@ public class ProductImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse create(ProductDTO productDTO) {
+    public ProductResponse create(ProductDTO productDTO, MultipartFile[] files) {
+        if (productRepo.existsByCode(productDTO.getCode())) return null;
         Product product = productRepo.save(convertBase.convert(productDTO, Product.class));
         for (Size s : product.getSizes()) {
             s.setProduct(product);
             sizeRepo.save(s);
         }
-        for (Image i : product.getImages()) {
-            i.setProduct(product);
-            imageRepo.save(i);
+        for (int i = 0; i < productDTO.getImages().size(); i++) {
+            Image image = product.getImages().get(i);
+            image.setProduct(product);
+            image.setPath(imageService.load(files[i]));
+            imageRepo.save(image);
         }
         return convertBase.convert(product, ProductResponse.class);
     }
 
     @Override
-    public ProductResponse update(ProductDTO productDTO) {
-        Product product = productRepo.findById(productDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Product not found"));
+    public ProductResponse update(ProductDTO productDTO, MultipartFile[] file) {
+        Product product = productRepo.findByCode(productDTO.getCode());
+        if (product == null || !product.getId().equals(productDTO.getId())) {
+            return null;
+        }
         Product productConvert = convertBase.convert(productDTO, Product.class);
 
         implUtil.updateFieldIfNotNull(productConvert.getName(), product::setName);
@@ -107,6 +119,7 @@ public class ProductImpl implements ProductService {
         }
         List<Size> currentSizes = product.getSizes();
         List<Image> currentImages = product.getImages();
+        List<ImageDTO> inputImages = productDTO.getImages();
 
         if (productConvert.getSizes() != null && productConvert.getSizes().size() > 0) {
             for (Size s : productConvert.getSizes()) {
@@ -124,23 +137,62 @@ public class ProductImpl implements ProductService {
                 }
             }
         }
-        if (productConvert.getImages() != null && productConvert.getImages().size() > 0) {
-            for (Image i : productConvert.getImages()) {
-                if (i.getId() != null) {
-                    currentImages.stream().filter(image -> image.getId().equals(i.getId())).findFirst().ifPresent(existingSize -> {
-                        implUtil.updateFieldIfNotNull(i.getPath(), existingSize::setPath);
-                        implUtil.updateFieldIfNotNull(i.isThumbnail(), existingSize::setThumbnail);
-                    });
+//        if (productConvert.getImages() != null && productConvert.getImages().size() > 0) {
+//            for (Image i : productConvert.getImages()) {
+//                if (i.getId() != null) {
+//                    currentImages.stream().filter(image -> image.getId().equals(i.getId())).findFirst().ifPresent(existingSize -> {
+//                        implUtil.updateFieldIfNotNull(i.getPath(), existingSize::setPath);
+//                        implUtil.updateFieldIfNotNull(i.isThumbnail(), existingSize::setThumbnail);
+//                    });
+//                } else {
+//                    i.setPath(imageService.load(file[i]));
+//                    i.setProduct(product);
+//                    imageRepo.save(i);
+//                }
+//            }
+//        }
+
+        // images input
+        // images current
+        // tìm kiếm danh sách trong current có, mà input không có bằng cách kiểm tra id
+        // nếu bằng nhau thì setThumnail
+        // còn không bằng nhau thì xóa trong database và trong resouce project
+        // danh sách input không có id thì load ảnh và thêm Image vào database
+        if (inputImages != null && !inputImages.isEmpty()) {
+            List<Long> inputImageIds = inputImages.stream()
+                    .map(ImageDTO::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            List<Image> imagesToDelete = currentImages.stream()
+                    .filter(image -> !inputImageIds.contains(image.getId()))
+                    .collect(Collectors.toList());
+            imagesToDelete.forEach(image -> {
+                imageRepo.delete(image); // Xóa trong cơ sở dữ liệu
+                imageService.deleteSource(image.getPath()); // xóa ảnh khỏi dự án
+            });
+            for (ImageDTO inputImage : inputImages) {
+                if (inputImage.getId() != null) {
+                    currentImages.stream()
+                            .filter(image -> image.getId().equals(inputImage.getId()))
+                            .findFirst()
+                            .ifPresent(currentImage -> {
+                                // Cập nhật thumbnail
+                                implUtil.updateFieldIfNotNull(inputImage.isThumbnail(), currentImage::setThumbnail);
+                            });
                 } else {
-                    i.setProduct(product);
-                    imageRepo.save(i);
+                    // Tạo mới ảnh nếu không có ID
+                    Image newImage = new Image();
+                    newImage.setProduct(product);
+                    newImage.setPath(imageService.load(file[inputImages.indexOf(inputImage)])); // Giả sử file là một mảng chứa các file ảnh
+                    newImage.setThumbnail(inputImage.isThumbnail());
+                    imageRepo.save(newImage);
                 }
             }
         }
+        product.setImages(currentImages);
         Product productSave = productRepo.save(product);
         return convertBase.convert(productSave, ProductResponse.class);
     }
-
 
 
     @Override

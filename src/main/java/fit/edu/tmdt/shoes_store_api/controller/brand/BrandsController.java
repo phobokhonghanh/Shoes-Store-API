@@ -1,6 +1,7 @@
 package fit.edu.tmdt.shoes_store_api.controller.brand;
 
 import fit.edu.tmdt.shoes_store_api.Utils.ResponseUtil;
+import fit.edu.tmdt.shoes_store_api.constant.Message;
 import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Brand.BrandResponse;
 import fit.edu.tmdt.shoes_store_api.service.BrandService;
@@ -29,12 +30,12 @@ public class BrandsController {
     }
 
     @PostMapping("")
-    public ResponseEntity<BrandResponse> createBrand(@RequestBody BrandDTO brandDTO) {
-        return ResponseUtil.getResponse(brandService.createBrand(brandDTO), CREATED);
+    public ResponseEntity createBrand(@RequestBody BrandDTO brandDTO) {
+        return ResponseUtil.getResponseWithMessage(brandService.createBrand(brandDTO), Message.CODE_EXIST, CREATED);
     }
 
     @PatchMapping("")
-    public ResponseEntity<BrandResponse> updateBrand(@RequestBody BrandDTO brandDTO) {
-        return ResponseUtil.getResponse(brandService.updateBrand(brandDTO), CREATED);
+    public ResponseEntity updateBrand(@RequestBody BrandDTO brandDTO) {
+        return ResponseUtil.getResponseWithMessage(brandService.updateBrand(brandDTO),Message.CODE_EXIST, CREATED);
     }
 }
