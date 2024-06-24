@@ -52,8 +52,8 @@ public class PaymentImpl implements PaymentService {
             paypalRequest.setApplicationContext(new PaypalRequest.PayPalAppContext()
                     .setBrandName("Sneaker Shoes Store")
                     .setLandingPage(PaymentLandingPage.BILLING)
-                    .setReturnUrl(App.BACKEND_API + "/payment/paypal/success")
-                    .setCancelUrl(App.BACKEND_API + "/payment/paypal/cancel"));
+                    .setReturnUrl(App.BACKEND_API + "/client-api/payment/paypal/success")
+                    .setCancelUrl(App.BACKEND_API + "/client-api/payment/paypal/cancel"));
             // tạo giao dịch
             PaypalResponse paypalResponse = payPalHttpClient.createPaypalTransaction(paypalRequest);
             order.setPaymentMethodOrderId(paypalResponse.getId());

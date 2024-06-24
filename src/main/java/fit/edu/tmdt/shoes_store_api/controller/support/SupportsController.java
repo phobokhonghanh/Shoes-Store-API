@@ -1,4 +1,4 @@
-package fit.edu.tmdt.shoes_store_api.controller.client;
+package fit.edu.tmdt.shoes_store_api.controller.support;
 
 import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Support.SupportDataType;
@@ -12,18 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static fit.edu.tmdt.shoes_store_api.dto.Support.SupportDataType.GENDER;
-
 @RestController
 @RequestMapping("${api.prefix}")
-public class ClientSupportsController {
+public class SupportsController {
     @Autowired
     SupportService supportService;
 
-    @GetMapping(value = "/client-api/gender", produces = "application/json")
-    public ResponseEntity<List<SupportDTO>> getGender() {
+    @GetMapping(value = "/admin/support-data", produces = "application/json")
+    public ResponseEntity<List<SupportDTO>> getSupportData(@RequestParam String type) {
         try {
-            List<SupportDTO> data = supportService.getSupportData(GENDER);
+            SupportDataType dataType = SupportDataType.valueOf(type.toUpperCase());
+            List<SupportDTO> data = supportService.getSupportData(dataType);
             return ResponseEntity.ok(data);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

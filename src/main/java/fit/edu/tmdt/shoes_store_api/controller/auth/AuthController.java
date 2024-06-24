@@ -23,39 +23,10 @@ public class AuthController {
     @Autowired
     AccountService accountService;
 
-    @PostMapping("/auth/register")
-    public ResponseEntity create(@RequestBody AccountDTO accountDTO) {
-        String response = accountService.register(accountDTO);
-        return ResponseUtil.getResponseWithMessage(response, Message.ACCOUNT_EXIST, OK);
-    }
-
-    @PatchMapping("/auth/confirm-OTP/{id}")
-    public ResponseEntity<String> confirmOTP(@PathVariable Long id, @RequestParam(name = "otp", defaultValue = "000000") String otp, @RequestParam(name = "reset-password", defaultValue = "true") boolean resetPassword) {
-        String token = accountService.checkToken(id, otp, resetPassword);
-        return ResponseUtil.getResponseWithMessage(token, Message.ACCOUNT_NOT_EXIST, OK);
-    }
-
-    @PatchMapping("/auth/reset-OTP/{id}")
-    public ResponseEntity resetOTP(@PathVariable Long id, @RequestParam(name = "reset-password", defaultValue = "true") boolean resetPassword) {
-        return ResponseUtil.getResponse(accountService.resetToken(id, resetPassword), OK);
-    }
-
-    @PutMapping("/auth/forgot/{username}/{email}")
-    public ResponseEntity<Serializable> forgotPassword(@PathVariable String username, @PathVariable String email) {
-        Long accountId = accountService.forgotPassword(username, email);
-        return ResponseUtil.getResponseWithMessage(accountId, Message.ACCOUNT_NOT_EXIST, OK);
-    }
-
     @PostMapping("/admin/auth/register")
     public ResponseEntity createAdmin(@RequestBody AccountDTO accountDTO) {
         log.info("Register admin");
-        return create(accountDTO);
+        String response = accountService.register(accountDTO);
+        return ResponseUtil.getResponseWithMessage(response, Message.ACCOUNT_EXIST, OK);
     }
-
-
-    @PostMapping("/auth/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginDTO loginDTO) {
-        return ResponseUtil.getResponse(accountService.login(loginDTO), OK);
-    }
-
 }

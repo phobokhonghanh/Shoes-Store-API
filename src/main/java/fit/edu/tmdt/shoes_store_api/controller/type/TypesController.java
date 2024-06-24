@@ -30,12 +30,12 @@ public class TypesController {
     }
 
     @PostMapping("")
-    public ResponseEntity<TypeResponse> createBrand(@RequestBody TypeDTO typeDTO) {
+    public ResponseEntity<TypeResponse> create(@RequestBody TypeDTO typeDTO) {
         return ResponseUtil.getResponse(typeService.createType(typeDTO), CREATED);
     }
 
     @PatchMapping("")
-    public ResponseEntity<TypeResponse> updateBrand(@RequestBody TypeDTO typeDTO) {
+    public ResponseEntity<TypeResponse> update(@RequestBody TypeDTO typeDTO) {
         return ResponseUtil.getResponse(typeService.updateType(typeDTO), CREATED);
     }
 }
