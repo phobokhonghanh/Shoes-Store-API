@@ -31,8 +31,8 @@ public class ProductsController {
     }
 
     @PatchMapping
-    public ResponseEntity update(@RequestBody ProductDTO productDTO, @RequestParam MultipartFile[] file) {
-        ProductResponse saveProductDTO = productService.update(productDTO, file);
+    public ResponseEntity update(@RequestPart ProductDTO productDTO, @RequestParam MultipartFile[] files) {
+        ProductResponse saveProductDTO = productService.update(productDTO, files);
         return ResponseUtil.getResponseWithMessage(saveProductDTO, Message.CODE_EXIST, CREATED);
     }
 

@@ -1,29 +1,21 @@
-package fit.edu.tmdt.shoes_store_api.controller.client;
+package fit.edu.tmdt.shoes_store_api.controller.client.user;
 
 import fit.edu.tmdt.shoes_store_api.Utils.ResponseUtil;
-import fit.edu.tmdt.shoes_store_api.dto.Order.NotifyOrderResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Order.OrderDTO;
 import fit.edu.tmdt.shoes_store_api.dto.Order.OrderPaymentResponse;
 import fit.edu.tmdt.shoes_store_api.dto.Order.OrderResponse;
-import fit.edu.tmdt.shoes_store_api.dto.Product.ProductDTO;
-import fit.edu.tmdt.shoes_store_api.dto.Product.ProductResponse;
 import fit.edu.tmdt.shoes_store_api.service.OrderService;
-import fit.edu.tmdt.shoes_store_api.service.ProductService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
-
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("${api.prefix}/client-api/order")
-public class ClientOrdersController {
+@RequestMapping("${api.prefix}/user-api/order")
+public class UserOrdersController {
     @Autowired
     OrderService orderService;
 

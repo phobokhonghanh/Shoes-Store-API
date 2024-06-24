@@ -1,5 +1,6 @@
 package fit.edu.tmdt.shoes_store_api.config.security;
 
+import fit.edu.tmdt.shoes_store_api.config.token.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,38 +15,37 @@ public class WebSecurityConfig {
     private UserDetailServiceImpl userDetailsService;
     @Autowired
     private PasswordEncoderConfig passwordEncoderConfig;
-//
-//    @Bean
-//    public AuthTokenFilter authenticationJwAuthTokenFilter() {
-//        return new AuthTokenFilter();
-//    }
 
-        @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/**").permitAll()
-                )
-                .csrf(csrf -> csrf
-                        .disable());
-        return http.build();
+    @Bean
+    public AuthTokenFilter authenticationJwAuthTokenFilter() {
+        return new AuthTokenFilter();
     }
-//    @Bean
+
+//        @Bean
 //    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 //        http
 //                .authorizeHttpRequests((authorize) -> authorize
-//                        .requestMatchers(SecurityConstants.CLIENT_API_PATHS)
-//                        .permitAll()
-//                        .requestMatchers(SecurityConstants.ADMIN_API_PATHS).hasAnyAuthority(SecurityConstants.Role.ADMIN)
-//                        .requestMatchers(SecurityConstants.DOCTOR_API_PATHS).hasAnyAuthority(SecurityConstants.Role.DOCTOR,SecurityConstants.Role.ADMIN)
-//                        .requestMatchers(SecurityConstants.PATIENT_API_PATHS).hasAnyAuthority(SecurityConstants.Role.PATIENT,SecurityConstants.Role.DOCTOR,SecurityConstants.Role.ADMIN)
-//                        .anyRequest().authenticated()
+//                        .requestMatchers("/**").permitAll()
 //                )
 //                .csrf(csrf -> csrf
 //                        .disable());
-//        http.addFilterBefore(authenticationJwAuthTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 //        return http.build();
 //    }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(SecurityConstants.CLIENT_API_PATHS)
+                        .permitAll()
+                        .requestMatchers(SecurityConstants.ADMIN_API_PATHS).hasAnyAuthority(SecurityConstants.Role.ADMIN)
+                        .requestMatchers(SecurityConstants.USER_API_PATHS).hasAnyAuthority(SecurityConstants.Role.CLIENT, SecurityConstants.Role.ADMIN)
+                        .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf
+                        .disable());
+        http.addFilterBefore(authenticationJwAuthTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 
     //thiết lập userDetailService với encoder
     @Bean

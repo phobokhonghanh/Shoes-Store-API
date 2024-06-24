@@ -73,7 +73,6 @@ public class ImageImpl implements ImageService {
                 Path filePath = CURRENT_FOLDER.resolve(staticPath).resolve(path);
                 if (Files.exists(filePath)) {
                     Files.delete(filePath);
-                    System.out.println("File deleted successfully: " + filePath);
                 } else {
                     System.err.println("File does not exist: " + filePath);
                 }

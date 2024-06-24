@@ -94,8 +94,12 @@ public class ProductImpl implements ProductService {
 
     @Override
     public ProductResponse update(ProductDTO productDTO, MultipartFile[] file) {
-        Product product = productRepo.findByCode(productDTO.getCode());
-        if (product == null || !product.getId().equals(productDTO.getId())) {
+        Product productCode = productRepo.findByCode(productDTO.getCode());
+        if (productCode != null && !productCode.getId().equals(productDTO.getId())) {
+            return null;
+        }
+        Product product = productRepo.findById(productDTO.getId()).orElseGet(null);
+        if (product == null) {
             return null;
         }
         Product productConvert = convertBase.convert(productDTO, Product.class);
@@ -164,10 +168,13 @@ public class ProductImpl implements ProductService {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
             List<Image> imagesToDelete = currentImages.stream()
-                    .filter(image -> !inputImageIds.contains(image.getId()))
+                    .filter(image ->
+                            !inputImageIds.contains(image.getId())
+                    )
                     .collect(Collectors.toList());
+            currentImages.removeAll(imagesToDelete);
             imagesToDelete.forEach(image -> {
-                imageRepo.delete(image); // Xóa trong cơ sở dữ liệu
+                imageRepo.deleteById(image.getId()); // Xóa trong cơ sở dữ liệu
                 imageService.deleteSource(image.getPath()); // xóa ảnh khỏi dự án
             });
             for (ImageDTO inputImage : inputImages) {
@@ -186,6 +193,7 @@ public class ProductImpl implements ProductService {
                     newImage.setPath(imageService.load(file[inputImages.indexOf(inputImage)])); // Giả sử file là một mảng chứa các file ảnh
                     newImage.setThumbnail(inputImage.isThumbnail());
                     imageRepo.save(newImage);
+                    currentImages.add(newImage);
                 }
             }
         }

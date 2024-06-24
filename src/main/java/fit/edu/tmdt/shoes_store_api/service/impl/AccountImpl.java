@@ -79,7 +79,7 @@ public class AccountImpl implements AccountService {
             accountDTO.setPassword(passwordEncoder.encode(accountDTO.getPassword()));
             // set role là client
             SupportDTO role = new SupportDTO(Role.CLIENT);
-            if (accountDTO.getRole() != null) {
+            if (accountDTO.getRole().equals(Role.ADMIN)) {
                 role.setId(Role.ADMIN);
             }
             accountDTO.setRole(role);
