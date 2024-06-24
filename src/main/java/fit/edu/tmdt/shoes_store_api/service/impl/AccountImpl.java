@@ -79,8 +79,10 @@ public class AccountImpl implements AccountService {
             accountDTO.setPassword(passwordEncoder.encode(accountDTO.getPassword()));
             // set role là client
             SupportDTO role = new SupportDTO(Role.CLIENT);
-            if (accountDTO.getRole().equals(Role.ADMIN)) {
-                role.setId(Role.ADMIN);
+            if (accountDTO.getRole() != null) {
+                if (accountDTO.getRole().equals(Role.ADMIN)) {
+                    role.setId(Role.ADMIN);
+                }
             }
             accountDTO.setRole(role);
             // tạo tài khoản
@@ -175,7 +177,7 @@ public class AccountImpl implements AccountService {
     @Override
     public Page<UserResponse> getAll(Integer pageNo, Integer pageSize, String search) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Specification<Account> spec = Specification.where(AccountSpecification.containsKeywordInMultipleAttribute(search, "username","phone","email","fullname"));
+        Specification<Account> spec = Specification.where(AccountSpecification.containsKeywordInMultipleAttribute(search, "username", "phone", "email", "fullname"));
 
         Page<Account> accountEntity = userRepo.findAll(spec, pageable);
         List<UserResponse> userDTO = convertBase.toListConvert(accountEntity.getContent(), UserResponse.class);
