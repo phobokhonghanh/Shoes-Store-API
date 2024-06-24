@@ -52,4 +52,14 @@ public class StatisticalController {
         return ResponseUtil.getResponse(sumTotalOrderMonths, OK);
     }
 
+    @GetMapping(value = "/product/money", produces = "application/json")
+    public ResponseEntity sumTotalProductMonths(@RequestParam int year, @RequestParam Long productId) {
+        BigDecimal[] sumTotalOrderMonths = statisticalService.sumOrderByProductMonths(year,productId);
+        return ResponseUtil.getResponse(sumTotalOrderMonths, OK);
+    }
+    @GetMapping(value = "/product/count", produces = "application/json")
+    public ResponseEntity countOrdersByProductId(@RequestParam int year, @RequestParam Long productId) {
+        Long countOrdersByProductId = statisticalService.countOrdersByProductId(year,productId);
+        return ResponseUtil.getResponse(countOrdersByProductId, OK);
+    }
 }

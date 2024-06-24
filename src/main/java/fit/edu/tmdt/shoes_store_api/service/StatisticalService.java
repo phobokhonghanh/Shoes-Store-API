@@ -22,4 +22,9 @@ public interface StatisticalService {
     // tổng đơn hàng theo năm
     Integer[] sumTotalOrderMonths(int year);
 
+    BigDecimal[] sumOrderByProductMonths(int year, Long id);
+
+
+    Long countOrdersByProductId(int year, Long productId);
+
 }

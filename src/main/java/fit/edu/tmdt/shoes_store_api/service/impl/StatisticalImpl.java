@@ -21,7 +21,7 @@ public class StatisticalImpl implements StatisticalService {
 
     @Override
     public BigDecimal sumTotalMoneyOrderAll() {
-        Query query = entityManager.createNativeQuery("SELECT COALESCE(SUM(o.totalAmount), 0) AS total_orders FROM `order` WHERE payment_method_order_id IS NOT NULL ",
+        Query query = entityManager.createNativeQuery("SELECT COALESCE(SUM(total_amount), 0) AS total_orders FROM `order` WHERE payment_method_order_id IS NOT NULL ",
                 BigDecimal.class);
         return (BigDecimal) query.getSingleResult();
     }
@@ -93,5 +93,51 @@ public class StatisticalImpl implements StatisticalService {
         }
         return listResult;
     }
+
+    @Override
+    public BigDecimal[] sumOrderByProductMonths(int year, Long id) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT MONTH(o.created_at) AS month, SUM(o.total_amount) AS total_amount " +
+                        "FROM `order` o " +
+                        "JOIN `order_detail` od ON od.id_order_detail = o.id " +
+                        "JOIN `size` s ON od.size_id = s.id " +
+                        "JOIN `product` p ON s.product_id = p.id " +
+                        "WHERE YEAR(o.created_at) = :year AND p.id = :productId " +
+                        "GROUP BY MONTH(o.created_at) " +
+                        "ORDER BY month;"
+        );
+        query.setParameter("year", year);
+        query.setParameter("productId", id);
+
+        List<Object[]> resultList = query.getResultList();
+        BigDecimal[] listResult = new BigDecimal[12];
+        Arrays.fill(listResult, BigDecimal.ZERO);
+
+        // Điền dữ liệu vào mảng
+        for (Object[] result : resultList) {
+            int month = ((Number) result[0]).intValue();
+            BigDecimal totalAmount = (BigDecimal) result[1];
+            listResult[month - 1] = totalAmount;
+        }
+        return listResult;
+    }
+
+    @Override
+    public Long countOrdersByProductId(int year, Long id) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(o.id) AS total_orders " +
+                        "FROM `order` o " +
+                        "JOIN `order_detail` od ON od.id_order_detail = o.id " +
+                        "JOIN `size` s ON od.size_id = s.id " +
+                        "JOIN `product` p ON s.product_id = p.id " +
+                        "WHERE YEAR(o.created_at) = :year AND p.id = :productId"
+        );
+        query.setParameter("year", year);
+        query.setParameter("productId", id);
+
+        Object result = query.getSingleResult();
+        return ((Number) result).longValue();
+    }
+
 
 }
